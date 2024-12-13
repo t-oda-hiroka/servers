@@ -1,1 +1,35 @@
-aW1wb3J0IGZzIGZyb20gJ2ZzL3Byb21pc2VzJzsKaW1wb3J0IHBhdGggZnJvbSAncGF0aCc7CmltcG9ydCBvcyBmcm9tICdvcyc7CgpleHBvcnQgaW50ZXJmYWNlIENsYXVkZURlc2t0b3BDb25maWcgewogIGFsbG93ZWREaXJlY3Rvcmllcz86IHN0cmluZ1tdOwogIC8vIOS7peWJjeOBruioreWumuOCguWFpeOCjOOCi+OCiOOBhuOBq+OBmeOCiwp9CgpleHBvcnQgY2xhc3MgQ29uZmlnTWFuYWdlciB7CiAgcHJpdmF0ZSBzdGF0aWMgcmVhZG9ubHkgQ09ORklHX0ZJTEUgPSAnfi9MaWJyYXJ5L0FwcGxpY2F0aW9uIFN1cHBvcnQvQ2xhdWRlL2NsYXVkZV9kZXNrdG9wX2NvbmZpZy5qc29uJzsKCiAgc3RhdGljIGFzeW5jIHJlYWRDb25maWcoKTogUHJvbWlzZTxDbGF1ZGVEZXNrdG9wQ29uZmlnPiB7CiAgICB0cnkgewogICAgICBjb25zdCBjb25maWdQYXRoID0gdGhpcy5leHBhbmRDb25maWdQYXRoKCk7CiAgICAgIGNvbnN0IGNvbnRlbnQgPSBhd2FpdCBmcy5yZWFkRmlsZShjb25maWdQYXRoLCAndXRmLTgnKTsKICAgICAgcmV0dXJuIEpTT04ucGFyc2UoY29udGVudCk7CiAgICB9IGNhdGNoIChlcnJvcikgewogICAgICAvLyDjg5XjgqHjgqTjg6vjgYzlrZjlnKjjgZfjgarjgYTloLTjga7jg4fjg5Xjgqnjg6vjg4joqK3lrprjgpLov5TjgZkKICAgICAgcmV0dXJuIHsgYWxsb3dlZERpcmVjdG9yaWVzOiBbXSB9OwogICAgfQogIH0KCiAgc3RhdGljIGFzeW5jIHdyaXRlQ29uZmlnKGNvbmZpZzogQ2xhdWRlRGVza3RvcENvbmZpZyk6IFByb21pc2U8dm9pZD4gewogICAgY29uc3QgY29uZmlnUGF0aCA9IHRoaXMuZXhwYW5kQ29uZmlnUGF0aCgpOwogICAgYXdhaXQgZnMubWtkaXIocGF0aC5kaXJuYW1lKGNvbmZpZ1BhdGgpLCB7IHJlY3Vyc2l2ZTogdHJ1ZSB9KTsKICAgIGF3YWl0IGZzLndyaXRlRmlsZShjb25maWdQYXRoLCBKU09OLnN0cmluZ2lmeShjb25maWcsIG51bGwsIDIpLCAndXRmLTgnKTsKICB9CgogIHByaXZhdGUgc3RhdGljIGV4cGFuZENvbmZpZ1BhdGgoKTogc3RyaW5nIHsKICAgIGNvbnN0IGNvbmZpZ1BhdGggPSB0aGlzLkNPTkZJR19GSUxFOwogICAgaWYgKGNvbmZpZ1BhdGguc3RhcnRzV2l0aCgnfi8nKSkgewogICAgICByZXR1cm4gcGF0aC5qb2luKG9zLmhvbWVkaXIoKSwgY29uZmlnUGF0aC5zbGljZSgyKSk7CiAgICB9CiAgICByZXR1cm4gY29uZmlnUGF0aDsKICB9CgogIHN0YXRpYyBhc3luYyB1cGRhdGVBbGxvd2VkRGlyZWN0b3JpZXMoZGlyZWN0b3JpZXM6IHN0cmluZ1tdKTogUHJvbWlzZTx2b2lkPiB7CiAgICBjb25zdCBjb25maWcgPSBhd2FpdCB0aGlzLnJlYWRDb25maWcoKTsKICAgIGNvbmZpZy5hbGxvd2VkRGlyZWN0b3JpZXMgPSBkaXJlY3RvcmllczsKICAgIGF3YWl0IHRoaXMud3JpdGVDb25maWcoY29uZmlnKTsKICB9CgogIHN0YXRpYyBhc3luYyBnZXRBbGxvd2VkRGlyZWN0b3JpZXMoKTogUHJvbWlzZTxzdHJpbmdbXT4gewogICAgY29uc3QgY29uZmlnID0gYXdhaXQgdGhpcy5yZWFkQ29uZmlnKCk7CiAgICByZXR1cm4gY29uZmlnLmFsbG93ZWREaXJlY3RvcmllcyB8fCBbXTsKICB9Cn0K
+import fs from 'fs/promises';
+import path from 'path';
+
+export interface ClaudeDesktopConfig {
+  allowedDirectories?: string[];
+}
+
+export class ConfigManager {
+  private static readonly CONFIG_FILE = '/Users/hoda/Library/Application Support/Claude/claude_desktop_config.json';
+
+  static async readConfig(): Promise<ClaudeDesktopConfig> {
+    try {
+      const content = await fs.readFile(this.CONFIG_FILE, 'utf-8');
+      return JSON.parse(content);
+    } catch (error) {
+      return { allowedDirectories: [] };
+    }
+  }
+
+  static async writeConfig(config: ClaudeDesktopConfig): Promise<void> {
+    await fs.mkdir(path.dirname(this.CONFIG_FILE), { recursive: true });
+    await fs.writeFile(this.CONFIG_FILE, JSON.stringify(config, null, 2), 'utf-8');
+  }
+
+  static async updateAllowedDirectories(directories: string[]): Promise<void> {
+    const config = await this.readConfig();
+    config.allowedDirectories = directories.map(dir => path.resolve(dir));
+    await this.writeConfig(config);
+  }
+
+  static async getAllowedDirectories(): Promise<string[]> {
+    const config = await this.readConfig();
+    return config.allowedDirectories || [];
+  }
+}
